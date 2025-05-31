@@ -1,49 +1,66 @@
 <?php
-
 namespace App\Http\Controllers;
-
-use App\Http\Controllers\Controller;
+use App\Models\Product;
+use App\Models\PropertyValue;
 use Illuminate\Http\Request;
-
 class ProductController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = Product::with(['propertyValues.property']);
+        if ($request->filled('properties')) {
+            foreach ($request->input('properties') as $property => $values) {
+                $query->whereHas('propertyValues', function ($q) use ($property, $values) {
+                    $q->whereHas('property', function ($q2) use ($property) {
+                        $q2->where('name', $property);
+                    })->whereIn('value', $values);
+                });
+            }
+        }
+        $products = $query->paginate(40);
+        return response()->json($products);
     }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        // Проверка входящих данных
+        $data = $request->validate([
+            'name' => 'required|string',
+            'price' => 'required|numeric',
+            'quantity' => 'required|integer',
+            'property_value_ids' => 'array',
+        ]);
+        $product = Product::create($data);
+        if(isset($data['property_value_ids'])) {
+            $product->propertyValues()->attach($data['property_value_ids']);
+        }
+        return response()->json($product->load('propertyValues.property'), 201);
+    }
+    public function show($id)
+    {
+        $product = Product::with(['propertyValues.property'])->findOrFail($id);
+        return response()->json($product);
+    }
+    public function update(Request $request, $id)
+    {
+        $data = $request->validate([
+            'name' => 'sometimes|string',
+            'price' => 'sometimes|numeric',
+            'quantity' => 'sometimes|integer',
+            'property_value_ids' => 'array',
+        ]);
+        $product = Product::findOrFail($id);
+        $product->update($data);
+        if (array_key_exists('property_value_ids', $data)) {
+            $product->propertyValues()->sync($data['property_value_ids']);
+        }
+        return response()->json($product->load('propertyValues.property'));
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function destroy($id)
     {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        $product = Product::findOrFail($id);
+        $product->propertyValues()->detach();
+        $product->delete();
+        return response()->json(['message' => 'Product deleted']);
     }
 }

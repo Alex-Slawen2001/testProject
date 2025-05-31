@@ -1,49 +1,43 @@
 <?php
 
 namespace App\Http\Controllers;
-
-use App\Http\Controllers\Controller;
+use App\Models\PropertyValue;
 use Illuminate\Http\Request;
-
 class PropertyValueController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $values = PropertyValue::with('property')->get();
+        return response()->json($values);
     }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'property_id' => 'required|exists:properties,id',
+            'value' => 'required|string'
+        ]);
+        $propertyValue = PropertyValue::create($data);
+        return response()->json($propertyValue, 201);
     }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show($id)
     {
-        //
+        $value = PropertyValue::with('property')->findOrFail($id);
+        return response()->json($value);
     }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        //
+        $data = $request->validate([
+            'property_id' => 'sometimes|exists:properties,id',
+            'value' => 'required|string'
+        ]);
+        $propertyValue = PropertyValue::findOrFail($id);
+        $propertyValue->update($data);
+        return response()->json($propertyValue);
     }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        //
+        $propertyValue = PropertyValue::findOrFail($id);
+        $propertyValue->delete();
+        return response()->json(['message' => 'Property value deleted']);
     }
 }
