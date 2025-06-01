@@ -11,9 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('product_property_values', function (Blueprint $table) {
+        Schema::create('product_property_value', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
+            $table->foreignId('property_value_id')->constrained('property_values')->onDelete('cascade');
             $table->timestamps();
+            $table->unique(['product_id', 'property_value_id'], 'product_property_unique');
         });
     }
 

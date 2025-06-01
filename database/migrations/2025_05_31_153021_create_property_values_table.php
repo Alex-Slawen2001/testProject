@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::create('property_values', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('property_id')->constrained('properties')->onDelete('cascade'); // ссылка на properties
+            $table->string('value');
             $table->timestamps();
         });
     }
