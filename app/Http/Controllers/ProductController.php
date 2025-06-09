@@ -29,13 +29,27 @@ class ProductController extends Controller
                 });
             }
         }
-        if($request->filled('min_price')) {
-            $query->where('price','>=',$request->input('min_price'));
+        if ($request->filled('min_price')) {
+            $query->where('price','>=',$request->input('price'));
         }
         if ($request->filled('max_price')) {
-            $query->where('price','<=',$request->input('max_price'));
+            $query->where('price',"<=",$request->input('max_price'));
         }
-
+        if ($request->filled('sort')) {
+            switch($request->input('sort')) {
+                case 'price_asc' :
+                    $query->orderBy('price','asc');
+                    break;
+                case 'price_desc' :
+                    $query->orderBy('price','desc');
+                    break;
+                case 'name_asc' :
+                    $query->orderBy('name','asc');
+                    break;
+                case 'name_desc' :
+                    $query->orderBy('name','desc');
+            }
+        }
         $products = $query->paginate(40);
         return response()->json($products);
     }
