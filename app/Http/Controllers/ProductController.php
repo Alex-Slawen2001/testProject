@@ -5,6 +5,18 @@ use App\Models\PropertyValue;
 use Illuminate\Http\Request;
 class ProductController extends Controller
 {
+    public final function lazyLoad(Request $request) {
+        $query = Product::query();
+        if ($request->filled('properties')) {
+            foreach($request->input('properties') as $prop=>$values) {
+                $query->whereHas('propertyValues',function($q) use ($prop,$values){
+                    $q->whereHas('property',function($q2) use ($prop) {
+                       $q2->where('name',$prop);
+                    });
+                })->whereIn('value ',$values) ;
+            }
+        }
+    }
     public function index(Request $request)
     {
         $query = Product::with(['propertyValues.property']);
