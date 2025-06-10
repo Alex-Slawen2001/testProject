@@ -30,7 +30,7 @@ class ProductController extends Controller
             }
         }
         if ($request->filled('min_price')) {
-            $query->where('price','>=',$request->input('price'));
+            $query->where('price','>=',$request->input('min_price'));
         }
         if ($request->filled('max_price')) {
             $query->where('price',"<=",$request->input('max_price'));
