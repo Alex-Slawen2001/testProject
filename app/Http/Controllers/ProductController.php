@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\PropertyValue;
 use Illuminate\Http\Request;
+use App\Models\User;
 class ProductController extends Controller
 {
     public final function lazyLoad(Request $request) {
@@ -96,8 +97,13 @@ class ProductController extends Controller
         $product->delete();
         return response()->json(['message' => 'Product deleted']);
     }
-    public function getInfoUser($name,$surname) {
-
+    public function getInfoUser($name,$surname,Request $request) {
+$queryUser = User::query();
+if ($request->filled('name','surname')) {
+    foreach($request->input('name') as $key=>$value) {
+        $queryUser->whereHas();
+    }
+}
     }
     public function setInfoUser($name,$surname,...$values) {
 
