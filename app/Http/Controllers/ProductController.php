@@ -96,4 +96,16 @@ class ProductController extends Controller
         $product->delete();
         return response()->json(['message' => 'Product deleted']);
     }
+    public function getInfoUser($name,$surname) {
+
+    }
+    public function setInfoUser($name,$surname,...$values) {
+
+    }
+    public function deleteUser($name,$surname) {
+
+    }
+    public function updateUser($name,$surname,...$values) {
+
+    }
 }

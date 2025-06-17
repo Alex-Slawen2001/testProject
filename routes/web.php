@@ -22,3 +22,9 @@ Route::prefix('property-values')->group(function(){
 
 
 });
+Route::prefix('users')->group(function() {
+    Route::get('user/{name}{surname}',[ProductController::class,'getInfoUser']);
+    Route::post('user/{name}{surname}{values}',[ProductController::class,'setInfoUser']);
+    Route::put('user/{name}{surname}{values}',[ProductController::class,'updateUser']);
+    Route::delete('user/{name}{surname}{values}',[ProductController::class,'deleteUser']);
+})->name('userinfo');
